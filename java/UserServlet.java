@@ -2,8 +2,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,11 +18,11 @@ public class UserServlet extends HttpServlet {
 
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mydatabase", "user", "password");
-            Statement stmt = conn.createStatement();
+            String query = "SELECT * FROM users WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, userId);
 
-            // Vulnerability: Concatenation of user input in SQL query
-            String query = "SELECT * FROM users WHERE id = " + userId;
-            ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 out.println("User ID: " + rs.getInt("id"));
@@ -30,7 +30,7 @@ public class UserServlet extends HttpServlet {
             }
 
             rs.close();
-            stmt.close();
+            pstmt.close();
             conn.close();
         } catch (Exception e) {
             e.printStackTrace();
