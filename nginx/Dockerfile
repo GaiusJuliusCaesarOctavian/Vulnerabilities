@@ -1,5 +1,10 @@
 FROM ubuntu:14.04
 
+RUN addgroup --system <group>
+RUN adduser --system <user> --ingroup <group>
+USER <user>:<group>
+
+
 # Instalar paquetes vulnerables
 RUN apt-get update && apt-get install -y \
     openssl=1.0.1f-1ubuntu2 \
